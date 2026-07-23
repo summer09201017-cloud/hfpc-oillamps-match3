@@ -1,0 +1,13 @@
+{
+  "name": "十童女・預備油",
+  "short_name": "預備油",
+  "description": "點兩個相鄰的器皿交換,排成一排 3 個同款就倒油入燈!預備油在器皿裡,儆醒等候新郎(馬太福音 25,和合本)",
+  "start_url": "./",
+  "display": "fullscreen",
+  "orientation": "landscape",
+  "background_color": "#16213c",
+  "theme_color": "#f0a030",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}
