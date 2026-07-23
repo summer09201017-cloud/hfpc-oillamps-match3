@@ -760,18 +760,27 @@
 
     _clouds() {
       const { ctx } = this
-      for (let i = 0; i < 26; i++) {
-        const x = (i * 97 + 40) % VW
-        const y = (i * 53 + 20) % 150
-        const tw = 0.35 + 0.55 * Math.abs(Math.sin(this._t * 1.6 + i * 1.7))
+      // 07-24 使用者點名:星星再多一點(26→64,鋪更深,亮星帶十字閃芒)、月亮再大一點
+      for (let i = 0; i < 64; i++) {
+        const x = (i * 149 + 40) % VW
+        const y = (i * 71 + 14) % 240
+        const tw = 0.3 + 0.6 * Math.abs(Math.sin(this._t * 1.6 + i * 1.7))
         ctx.fillStyle = `rgba(255,244,200,${tw})`
-        ctx.beginPath(); ctx.arc(x, y, i % 4 === 0 ? 2.2 : 1.4, 0, 7); ctx.fill()
+        const sr = i % 5 === 0 ? 2.4 : i % 3 === 0 ? 1.8 : 1.2
+        ctx.beginPath(); ctx.arc(x, y, sr, 0, 7); ctx.fill()
+        if (i % 9 === 0) { // 亮星:十字閃芒
+          ctx.strokeStyle = `rgba(255,244,200,${tw * 0.8})`; ctx.lineWidth = 1
+          ctx.beginPath(); ctx.moveTo(x - 5.5, y); ctx.lineTo(x + 5.5, y); ctx.stroke()
+          ctx.beginPath(); ctx.moveTo(x, y - 5.5); ctx.lineTo(x, y + 5.5); ctx.stroke()
+        }
       }
-      // 月亮
-      ctx.fillStyle = 'rgba(250,240,200,0.9)'
-      ctx.beginPath(); ctx.arc(96, 60, 22, 0, 7); ctx.fill()
+      // 月亮(加大:22→32,微光暈;保持弦月=半夜有人喊,太25:6)
+      ctx.fillStyle = 'rgba(250,240,200,0.15)'
+      ctx.beginPath(); ctx.arc(92, 62, 44, 0, 7); ctx.fill()
+      ctx.fillStyle = 'rgba(250,240,200,0.92)'
+      ctx.beginPath(); ctx.arc(92, 62, 32, 0, 7); ctx.fill()
       ctx.fillStyle = 'rgba(22,33,60,0.85)'
-      ctx.beginPath(); ctx.arc(104, 54, 19, 0, 7); ctx.fill()
+      ctx.beginPath(); ctx.arc(104, 53, 28, 0, 7); ctx.fill()
     }
 
     _fsBtn() {
@@ -883,24 +892,46 @@
         ctx.lineCap = 'butt'
       }
       const face = (fy = 0) => {
-        const er = r * 0.14
-        ctx.fillStyle = '#fff'
-        ctx.beginPath(); ctx.arc(-r * 0.32, fy - r * 0.1, er * 1.55, 0, 7); ctx.fill()
-        ctx.beginPath(); ctx.arc(r * 0.32, fy - r * 0.1, er * 1.55, 0, 7); ctx.fill()
-        ctx.fillStyle = '#2c2416'
-        ctx.beginPath(); ctx.arc(-r * 0.3, fy - r * 0.08, er, 0, 7); ctx.fill()
-        ctx.beginPath(); ctx.arc(r * 0.34, fy - r * 0.08, er, 0, 7); ctx.fill()
-        ctx.fillStyle = '#fff'
-        ctx.beginPath(); ctx.arc(-r * 0.34, fy - r * 0.14, er * 0.42, 0, 7); ctx.fill()
-        ctx.beginPath(); ctx.arc(r * 0.3, fy - r * 0.14, er * 0.42, 0, 7); ctx.fill()
-        ctx.fillStyle = 'rgba(255,255,255,0.7)'
-        ctx.beginPath(); ctx.arc(-r * 0.26, fy - r * 0.03, er * 0.2, 0, 7); ctx.fill()
-        ctx.beginPath(); ctx.arc(r * 0.38, fy - r * 0.03, er * 0.2, 0, 7); ctx.fill()
-        ctx.fillStyle = 'rgba(240,120,120,0.4)' // 腮紅
-        ctx.beginPath(); ctx.arc(-r * 0.52, fy + r * 0.18, er * 1.2, 0, 7); ctx.fill()
-        ctx.beginPath(); ctx.arc(r * 0.52, fy + r * 0.18, er * 1.2, 0, 7); ctx.fill()
-        ctx.strokeStyle = '#4a3420'; ctx.lineWidth = Math.max(1.2, r * 0.05) // 微笑
-        ctx.beginPath(); ctx.arc(0, fy + r * 0.12, r * 0.18, 0.25 * Math.PI, 0.75 * Math.PI); ctx.stroke()
+        // ★ 07-24 v3:大眼睛+眨眼(依位置錯開,絕不全場同步;reduced-motion 不眨)+興奮 D 型嘴
+        const er = r * 0.18
+        const blink = !this.reduced && ((this._t + x * 7.13 + y * 3.71) % 4.6) < 0.12
+        if (blink) {
+          ctx.strokeStyle = '#2c2416'; ctx.lineWidth = Math.max(1.6, r * 0.07); ctx.lineCap = 'round'
+          ctx.beginPath(); ctx.moveTo(-r * 0.44, fy - r * 0.08); ctx.lineTo(-r * 0.16, fy - r * 0.08); ctx.stroke()
+          ctx.beginPath(); ctx.moveTo(r * 0.2, fy - r * 0.08); ctx.lineTo(r * 0.48, fy - r * 0.08); ctx.stroke()
+          ctx.lineCap = 'butt'
+        } else {
+          ctx.fillStyle = '#fff'
+          ctx.beginPath(); ctx.arc(-r * 0.32, fy - r * 0.1, er * 1.45, 0, 7); ctx.fill()
+          ctx.beginPath(); ctx.arc(r * 0.32, fy - r * 0.1, er * 1.45, 0, 7); ctx.fill()
+          ctx.fillStyle = '#2c2416'
+          ctx.beginPath(); ctx.arc(-r * 0.3, fy - r * 0.08, er, 0, 7); ctx.fill()
+          ctx.beginPath(); ctx.arc(r * 0.34, fy - r * 0.08, er, 0, 7); ctx.fill()
+          ctx.fillStyle = '#fff'
+          ctx.beginPath(); ctx.arc(-r * 0.35, fy - r * 0.15, er * 0.42, 0, 7); ctx.fill()
+          ctx.beginPath(); ctx.arc(r * 0.29, fy - r * 0.15, er * 0.42, 0, 7); ctx.fill()
+          ctx.fillStyle = 'rgba(255,255,255,0.7)'
+          ctx.beginPath(); ctx.arc(-r * 0.25, fy - r * 0.02, er * 0.2, 0, 7); ctx.fill()
+          ctx.beginPath(); ctx.arc(r * 0.39, fy - r * 0.02, er * 0.2, 0, 7); ctx.fill()
+        }
+        const bl = ctx.createRadialGradient(-r * 0.54, fy + r * 0.22, 0, -r * 0.54, fy + r * 0.22, er * 1.25)
+        bl.addColorStop(0, 'rgba(245,130,130,0.5)'); bl.addColorStop(1, 'rgba(245,130,130,0)')
+        ctx.fillStyle = bl
+        ctx.beginPath(); ctx.arc(-r * 0.54, fy + r * 0.22, er * 1.25, 0, 7); ctx.fill()
+        const br = ctx.createRadialGradient(r * 0.54, fy + r * 0.22, 0, r * 0.54, fy + r * 0.22, er * 1.25)
+        br.addColorStop(0, 'rgba(245,130,130,0.5)'); br.addColorStop(1, 'rgba(245,130,130,0)')
+        ctx.fillStyle = br
+        ctx.beginPath(); ctx.arc(r * 0.54, fy + r * 0.22, er * 1.25, 0, 7); ctx.fill()
+        if (k > 0.05) { // 興奮(收取/落地 Q 彈)=開心 D 型嘴+小舌頭
+          ctx.fillStyle = '#4a3420'
+          ctx.beginPath(); ctx.arc(0, fy + r * 0.14, r * 0.2, 0, Math.PI); ctx.closePath(); ctx.fill()
+          ctx.fillStyle = '#e89090'
+          ctx.beginPath(); ctx.arc(0, fy + r * 0.3, r * 0.11, Math.PI, 0); ctx.fill()
+        } else { // 平時=加深加寬的微笑
+          ctx.strokeStyle = '#4a3420'; ctx.lineWidth = Math.max(1.6, r * 0.065); ctx.lineCap = 'round'
+          ctx.beginPath(); ctx.arc(0, fy + r * 0.08, r * 0.26, 0.18 * Math.PI, 0.82 * Math.PI); ctx.stroke()
+          ctx.lineCap = 'butt'
+        }
       }
       if (kind === 'amphora') { // 赤陶雙耳壺
         body('#d88a5a', '#b46a3e')
