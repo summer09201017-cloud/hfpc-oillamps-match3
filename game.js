@@ -187,6 +187,7 @@
       }
       this.sel = null
       this.lock = 0.5
+      this._buf = null
       this.collected = 0
       this.flyers = []; this.birds = []; this.pops = []; this.toasts = []; this.confetti = []; this.shocks = []; this.sparks = []; this.pending = null
       this.crowT = 14
@@ -400,11 +401,11 @@
         if (this.lock <= 0 && this.state === 'play') {
           const got = this._resolve()
           if (got === -1) {
-            this.lock = 0.7 // 第一拍:金繩捆好,亮著看清楚
+            this.lock = 0.35 // 第一拍:金繩捆好,亮著看清楚
           } else if (got) {
             this.collected += got
             this.toasts.push({ text: this.collected % (PAIR * 3) < 3 ? T.gather : T.cascade, t: this._t })
-            this.lock = 0.8 // 連鎖放慢,享受觀察
+            this.lock = 0.4 // 連鎖放慢,享受觀察
           } else if (this._pairs() >= this.goal) {
             this.state = 'close'
             this.closeT = 2.4
@@ -412,6 +413,8 @@
           } else if (!this._hasMove()) this._shuffle()
         }
       }
+      // 點擊緩衝:盤面 idle 時補做鎖定期間記下的那一步(手感連續、不掉點)
+      if (this.lock <= 0 && this.state === 'play' && this._buf) { const e = this._buf; this._buf = null; this._down(e) }
       // ⏱ 衝刺關倒數:時間到=直接結算(收越多越好,不算輸)
       if (this.sprint && this.state === 'play') {
         this.sprintT -= dt
@@ -567,7 +570,8 @@
         }
         return
       }
-      if (this.state !== 'play' || this.lock > 0) return
+      if (this.state !== 'play') return
+      if (this.lock > 0) { this._buf = e; return } // 鎖定期間的點擊存起來,解鎖立刻補做(手感不掉點)
       const g = this._geo()
       const c = Math.floor((x - g.x0) / g.D)
       const r = Math.floor((y - g.y0) / g.D)
